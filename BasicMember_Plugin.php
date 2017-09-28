@@ -47,16 +47,15 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         
         return array(
             //'_version' => array('Installed Version'), // Leave this one commented-out. Uncomment to test upgrades.
-            'Info' => __('Select a category for each of the two levels of subscription below.</p><p>Tip: To disable a subscription level, leave the category blank.', 'basic-member'),
             'GeneralSettings' => '<h3>' . __('General Settings', 'basic-member') . '</h3>',
-            'AccessDeniedMessage' => array(__( 'Access denied message', 'basic-member' ) ),
-            'SubscribePageURL' => array_merge( array(__( 'Subscribe page URL', 'basic-member' ) ), $pages ),
             'DisplayLoginOnDeny' => array(__( 'Display login page for restricted content', 'basic-member' ), 'Yes', 'No' ),
+            'AccessDeniedMessage' => array(__( 'Access denied message. Will be displayed when trying to access restricted content and <strong>Display login page for restricted content</strong> is set to <strong>No</strong>.', 'basic-member' ) ),
+            'SubscribePageURL' => array_merge( array(__( 'Subscribe page URL. This will be displayed when a logged-in user attempts to access premium content.', 'basic-member' ) ), $pages ),
             'SubscriberHeading' => '<h3>' . __('Restricted Access for Subscriber Role', 'basic-member') . '</h3>',
-            'Info2' => __('Note: Content in the Restricted Access category above will also be displayed to users with a Premium Access role.', 'basic-member'),
-            'SubscriberCategory' => array_merge( array(__( 'Category', 'basic-member' ) ), $categories ),
+            'SubscriberCategory' => array_merge( array(__( 'Category to associate with the Subscriber role (blank to disable):', 'basic-member' ) ), $categories ),
             'SubscriberPlusHeading' => '<h3>' . __( 'Premium Access for Subscriber+ Role', 'basic-member' ) . '</h3>',
-            'SubscriberPlusCategory' => array_merge( array(__( 'Category', 'basic-member') ), $categories ),
+            'SubscriberPlusCategory' => array_merge( array(__( 'Category to associate with the Subscriber+ role (blank to disable):', 'basic-member') ), $categories ),
+            'Info' => __('Note: Content in the Restricted Access category above will also be displayed to users with a Premium Access role.', 'basic-member'),
         );
     }
 
@@ -94,6 +93,7 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
 
     /*
      * Description: Disables WordPress dashboard, hides the admin bar for subscribers, adds category taxonomy to pages.
+     *
      * @return void
      */
     public function disable_admin_ui() {
@@ -122,6 +122,7 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
 
     /*
      * Restricts access to content with a membr or prim-membr categories.
+     *
      * @return void
      */
     public function restrict_content() {
@@ -129,7 +130,7 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         // User with no role assigned.
         $subscriber = $this->getOption( 'SubscriberCategory', 'subscriber' );
         // User with a role of subscriberplus.
-        $subscriberplus = $this->getOption( 'SubscriberPlusCategory', 'subscriberplus' );
+        $subscriberplus = $this->getOption( 'SubscriberPlusCategory', 'subscriber-2' );
 
         if(has_category( [ $subscriber, $subscriberplus ] ) ) {
             if( !is_user_logged_in() ) {
@@ -155,6 +156,62 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
             }
         }
     }
+    
+    /*
+     * Build list of subscriber and subscriberplus catgory ids.
+     *
+     * @param neg boolean (optional) true makes ID's negative, false makes them positive.
+     * @return string containing commas delimited list of category IDs.
+     */
+    private function restrictedCategoryList($neg = false) {
+        $subscriberIDs = '';
+        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber+' )) {
+            $subscriberIDs = $this->getOption( 'SubscriberCategory', 'subscriber' );
+            if ( !empty( $subscriberIDs ) ) {
+                $subscriberIDs = ( $neg ? '-' : '' ).strval( get_cat_ID( $subscriberIDs ) );
+            }
+        }
+        
+        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber' )) {
+            $subscriberPlusID = $this->getOption( 'SubscriberPlusCategory', 'subscriber-2' );
+            if ( !empty( $subscriberPlusID ) ) {
+                if ( is_numeric( $subscriberIDs ) ) {
+                    $subscriberIDs .= ',';
+                }
+                $subscriberIDs .= ( $neg ? '-' : '' ).strval( get_cat_ID( $subscriberPlusID ) );
+            }
+        }
+        return $subscriberIDs;
+    }
+
+    /* 
+     * Exclude Category Posts from Home Page
+     *
+     * @param object query.
+     * @return object query.
+     */
+    public function themeprefix_exclude_category( $query ) {
+        if ( $query->is_home() ) { // && $query->is_main_query() ) {
+            $subscriberIDs = $this->restrictedCategoryList(true);
+
+            // Filter out membership category numbers.
+            if (!empty($subscriberIDs)) {
+                $query->set( 'cat', $subscriberIDs );
+            }
+        }
+        return $query;
+    }
+    
+    /* 
+     * Hide categories from WordPress category widget
+     *
+     * @param array
+     * @return array
+     */
+    public function exclude_widget_categories($args){
+        $args["exclude"] = $this->restrictedCategoryList();
+        return $args;
+    }
 
     public function addActionsAndFilters() {
 
@@ -165,6 +222,12 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         add_action('init', array( &$this, 'disable_admin_ui') );
         // Restrict content.
         add_action('template_redirect', array( &$this, 'restrict_content') );
+        if ($this->getOption( 'DisplayLoginOnDeny', 'Yes' ) == 'No') {
+            // Hide restricted categories in blogroll.
+            add_action( 'pre_get_posts', array( &$this, 'themeprefix_exclude_category' ) );
+            // Hide restricted categories in category list.
+            add_filter( 'widget_categories_args', array( &$this, 'exclude_widget_categories' ) );
+        }
 
         // Example adding a script & style just for the options administration page
         // http://plugin.michael-simpson.com/?page_id=47
