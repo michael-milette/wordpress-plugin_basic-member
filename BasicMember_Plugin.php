@@ -164,15 +164,19 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
      * @return string containing commas delimited list of category IDs.
      */
     private function restrictedCategoryList($neg = false) {
+        global $current_user;
         $subscriberIDs = '';
-        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber+' )) {
+        
+        // Add categories if authenticated user has a role that which is not subscriber+.
+        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber+' ) ) {
             $subscriberIDs = $this->getOption( 'SubscriberCategory', 'subscriber' );
             if ( !empty( $subscriberIDs ) ) {
                 $subscriberIDs = ( $neg ? '-' : '' ).strval( get_cat_ID( $subscriberIDs ) );
             }
         }
         
-        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber' )) {
+        // Add categories if authenticated user has a role that which is not subscriber.
+        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber' ) ) {
             $subscriberPlusID = $this->getOption( 'SubscriberPlusCategory', 'subscriber-2' );
             if ( !empty( $subscriberPlusID ) ) {
                 if ( is_numeric( $subscriberIDs ) ) {
@@ -190,7 +194,7 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
      * @param object query.
      * @return object query.
      */
-    public function themeprefix_exclude_category( $query ) {
+    public function exclude_post_category( $query ) {
         if ( $query->is_home() ) { // && $query->is_main_query() ) {
             $subscriberIDs = $this->restrictedCategoryList(true);
 
@@ -218,41 +222,22 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         // Add options administration page
         // http://plugin.michael-simpson.com/?page_id=47
         add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
+
+        // Add Actions & Filters
+        // http://plugin.michael-simpson.com/?page_id=37
+
         // Disable Admin UI.
         add_action('init', array( &$this, 'disable_admin_ui') );
         // Restrict content.
         add_action('template_redirect', array( &$this, 'restrict_content') );
         if ($this->getOption( 'DisplayLoginOnDeny', 'Yes' ) == 'No') {
             // Hide restricted categories in blogroll.
-            add_action( 'pre_get_posts', array( &$this, 'themeprefix_exclude_category' ) );
+            add_action( 'pre_get_posts', array( &$this, 'exclude_post_category' ) );
             // Hide restricted categories in category list.
             add_filter( 'widget_categories_args', array( &$this, 'exclude_widget_categories' ) );
         }
 
-        // Example adding a script & style just for the options administration page
-        // http://plugin.michael-simpson.com/?page_id=47
-        //        if (strpos($_SERVER['REQUEST_URI'], $this->getSettingsSlug()) !== false) {
-        //            wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
-        //            wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
-        //        }
-
-
-        // Add Actions & Filters
-        // http://plugin.michael-simpson.com/?page_id=37
-
-
-        // Adding scripts & styles to all pages
-        // Examples:
-        //        wp_enqueue_script('jquery');
-        //        wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
-        //        wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
-
-
         // Register short codes
         // http://plugin.michael-simpson.com/?page_id=39
-
-
-        // Register AJAX hooks
-        // http://plugin.michael-simpson.com/?page_id=41
     }
 }
