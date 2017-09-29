@@ -19,7 +19,7 @@
 class BasicMember_OptionsManager {
 
     public function getOptionNamePrefix() {
-        return get_class($this) . '_';
+        return get_class( $this ) . '_';
     }
 
 
@@ -36,18 +36,23 @@ class BasicMember_OptionsManager {
      * array(
      *   'item' => 'Item:',             // key => display-name
      *   'rating' => array(             // key => array ( display-name, choice1, choice2, ...)
-     *       'CanDoOperationX' => array('Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber'),
-     *       'Rating:', 'Excellent', 'Good', 'Fair', 'Poor')
+     *       'CanDoOperationX' => array( 'Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber' ),
+     *       'Rating:', 'Excellent', 'Good', 'Fair', 'Poor' )
      */
     public function getOptionMetaData() {
-        return array();
+        return array(
+        'item' => 'Item:',             // key => display-name
+        'rating' => array(             // key => array ( display-name, choice1, choice2, ...)
+            'CanDoOperationX' => array( 'Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber' ),
+            'Rating:', 'Excellent', 'Good', 'Fair', 'Poor' ),
+        );
     }
 
     /**
      * @return array of string name of options
      */
     public function getOptionNames() {
-        return array_keys($this->getOptionMetaData());
+        return array_keys( $this->getOptionMetaData() );
     }
 
     /**
@@ -63,10 +68,10 @@ class BasicMember_OptionsManager {
      */
     protected function deleteSavedOptions() {
         $optionMetaData = $this->getOptionMetaData();
-        if (is_array($optionMetaData)) {
-            foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-                $prefixedOptionName = $this->prefix($aOptionKey); // how it is stored in DB
-                delete_option($prefixedOptionName);
+        if ( is_array( $optionMetaData ) ) {
+            foreach ( $optionMetaData as $aOptionKey => $aOptionMeta ) {
+                $prefixedOptionName = $this->prefix( $aOptionKey ); // how it is stored in DB
+                delete_option( $prefixedOptionName );
             }
         }
     }
@@ -76,7 +81,7 @@ class BasicMember_OptionsManager {
      * Just returns the class name. Override this method to return something more readable
      */
     public function getPluginDisplayName() {
-        return get_class($this);
+        return get_class( $this );
     }
 
     /**
@@ -85,9 +90,9 @@ class BasicMember_OptionsManager {
      * @param  $name string option name to prefix. Defined in settings.php and set as keys of $this->optionMetaData
      * @return string
      */
-    public function prefix($name) {
+    public function prefix( $name) {
         $optionNamePrefix = $this->getOptionNamePrefix();
-        if (strpos($name, $optionNamePrefix) === 0) { // 0 but not false
+        if ( strpos( $name, $optionNamePrefix ) === 0 ) { // 0 but not false
             return $name; // already prefixed
         }
         return $optionNamePrefix . $name;
@@ -99,10 +104,10 @@ class BasicMember_OptionsManager {
      * @param  $name string
      * @return string $optionName without the prefix.
      */
-    public function &unPrefix($name) {
+    public function &unPrefix( $name ) {
         $optionNamePrefix = $this->getOptionNamePrefix();
-        if (strpos($name, $optionNamePrefix) === 0) {
-            return substr($name, strlen($optionNamePrefix));
+        if ( strpos( $name, $optionNamePrefix ) === 0 ) {
+            return substr( $name, strlen( $optionNamePrefix ) );
         }
         return $name;
     }
@@ -115,10 +120,10 @@ class BasicMember_OptionsManager {
      * @return string the value from delegated call to get_option(), or optional default value
      * if option is not set.
      */
-    public function getOption($optionName, $default = null) {
-        $prefixedOptionName = $this->prefix($optionName); // how it is stored in DB
-        $retVal = get_option($prefixedOptionName);
-        if (!$retVal && $default) {
+    public function getOption( $optionName, $default = null ) {
+        $prefixedOptionName = $this->prefix( $optionName ); // how it is stored in DB
+        $retVal = get_option( $prefixedOptionName );
+        if ( !$retVal && $default ) {
             $retVal = $default;
         }
         return $retVal;
@@ -130,9 +135,9 @@ class BasicMember_OptionsManager {
      * @param  $optionName string defined in settings.php and set as keys of $this->optionMetaData
      * @return bool from delegated call to delete_option()
      */
-    public function deleteOption($optionName) {
-        $prefixedOptionName = $this->prefix($optionName); // how it is stored in DB
-        return delete_option($prefixedOptionName);
+    public function deleteOption( $optionName ) {
+        $prefixedOptionName = $this->prefix( $optionName ); // how it is stored in DB
+        return delete_option( $prefixedOptionName );
     }
 
     /**
@@ -142,9 +147,9 @@ class BasicMember_OptionsManager {
      * @param  $value mixed the new value
      * @return null from delegated call to delete_option()
      */
-    public function addOption($optionName, $value) {
-        $prefixedOptionName = $this->prefix($optionName); // how it is stored in DB
-        return add_option($prefixedOptionName, $value);
+    public function addOption( $optionName, $value ) {
+        $prefixedOptionName = $this->prefix( $optionName ); // how it is stored in DB
+        return add_option( $prefixedOptionName, $value );
     }
 
     /**
@@ -154,14 +159,14 @@ class BasicMember_OptionsManager {
      * @param  $value mixed the new value
      * @return null from delegated call to delete_option()
      */
-    public function updateOption($optionName, $value) {
-        $prefixedOptionName = $this->prefix($optionName); // how it is stored in DB
-        return update_option($prefixedOptionName, $value);
+    public function updateOption( $optionName, $value ) {
+        $prefixedOptionName = $this->prefix( $optionName ); // how it is stored in DB
+        return update_option( $prefixedOptionName, $value );
     }
 
     /**
      * A Role Option is an option defined in getOptionMetaData() as a choice of WP standard roles, e.g.
-     * 'CanDoOperationX' => array('Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber')
+     * 'CanDoOperationX' => array( 'Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber' )
      * The idea is use an option to indicate what role level a user must minimally have in order to do some operation.
      * So if a Role Option 'CanDoOperationX' is set to 'Editor' then users which role 'Editor' or above should be
      * able to do Operation X.
@@ -169,9 +174,9 @@ class BasicMember_OptionsManager {
      * @param  $optionName
      * @return string role name
      */
-    public function getRoleOption($optionName) {
-        $roleAllowed = $this->getOption($optionName);
-        if (!$roleAllowed || $roleAllowed == '') {
+    public function getRoleOption( $optionName ) {
+        $roleAllowed = $this->getOption( $optionName );
+        if ( !$roleAllowed || $roleAllowed == '' ) {
             $roleAllowed = 'Administrator';
         }
         return $roleAllowed;
@@ -183,48 +188,59 @@ class BasicMember_OptionsManager {
      * @param  $roleName
      * @return string a WP capability or '' if unknown input role
      */
-    protected function roleToCapability($roleName) {
-        switch ($roleName) {
+    protected function roleToCapability( $roleName ) {
+        $capability = '';
+        switch ( $roleName ) {
             case 'Super Admin':
-                return 'manage_options';
+                $capability = 'manage_options';
+                break;
             case 'Administrator':
-                return 'manage_options';
+                $capability = 'manage_options';
+                break;
             case 'Editor':
-                return 'publish_pages';
+                $capability = 'publish_pages';
+                break;
             case 'Author':
-                return 'publish_posts';
+                $capability = 'publish_posts';
+                break;
             case 'Contributor':
-                return 'edit_posts';
+                $capability = 'edit_posts';
+                break;
             case 'Subscriber':
-                return 'read';
+                $capability = 'read';
+                break;
+            case 'Subscriber+':
+                $capability = 'read';
+                break;
             case 'Anyone':
-                return 'read';
+                $capability = 'read';
+                break;
         }
-        return '';
+        return $capability;
     }
 
     /**
      * @param $roleName string a standard WP role name like 'Administrator'
      * @return bool
      */
-    public function isUserRoleEqualOrBetterThan($roleName) {
-        if ('Anyone' == $roleName) {
+    public function isUserRoleEqualOrBetterThan( $roleName ) {
+        if ( 'Anyone' == $roleName ) {
             return true;
         }
-        $capability = $this->roleToCapability($roleName);
-        return current_user_can($capability);
+        $capability = $this->roleToCapability( $roleName );
+        return current_user_can( $capability );
     }
 
     /**
-     * @param  $optionName string name of a Role option (see comments in getRoleOption())
+     * @param  $optionName string name of a Role option (see comments in getRoleOption() )
      * @return bool indicates if the user has adequate permissions
      */
-    public function canUserDoRoleOption($optionName) {
-        $roleAllowed = $this->getRoleOption($optionName);
-        if ('Anyone' == $roleAllowed) {
+    public function canUserDoRoleOption( $optionName ) {
+        $roleAllowed = $this->getRoleOption( $optionName );
+        if ( 'Anyone' == $roleAllowed ) {
             return true;
         }
-        return $this->isUserRoleEqualOrBetterThan($roleAllowed);
+        return $this->isUserRoleEqualOrBetterThan( $roleAllowed );
     }
 
     /**
@@ -234,22 +250,22 @@ class BasicMember_OptionsManager {
     public function createSettingsMenu() {
         $pluginName = $this->getPluginDisplayName();
         //create new top-level menu
-        add_menu_page($pluginName . ' Plugin Settings',
+        add_menu_page( $pluginName . ' Plugin Settings',
                       $pluginName,
                       'administrator',
-                      get_class($this),
-                      array(&$this, 'settingsPage')
-        /*,plugins_url('/images/icon.png', __FILE__)*/); // if you call 'plugins_url; be sure to "require_once" it
+                      get_class( $this ),
+                      array( &$this, 'settingsPage' ,)
+        /*,plugins_url( '/images/icon.png', __FILE__)*/); // if you call 'plugins_url; be sure to "require_once" it
 
         //call register settings function
-        add_action('admin_init', array(&$this, 'registerSettings'));
+        add_action( 'admin_init', array( &$this, 'registerSettings' ) );
     }
 
     public function registerSettings() {
-        $settingsGroup = get_class($this) . '-settings-group';
+        $settingsGroup = get_class( $this ) . '-settings-group';
         $optionMetaData = $this->getOptionMetaData();
-        foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-            register_setting($settingsGroup, $aOptionMeta);
+        foreach ( $optionMetaData as $aOptionKey => $aOptionMeta ) {
+            register_setting( $settingsGroup, $aOptionMeta );
         }
     }
 
@@ -259,43 +275,43 @@ class BasicMember_OptionsManager {
      * @return void
      */
     public function settingsPage() {
-        if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'basic-member'));
+        if ( !current_user_can( 'manage_options' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'basic-member' ) );
         }
 
         $optionMetaData = $this->getOptionMetaData();
 
         // Save Posted Options
-        if ($optionMetaData != null) {
-            foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-                if (isset($_POST[$aOptionKey])) {
-                    $this->updateOption($aOptionKey, $_POST[$aOptionKey]);
+        if ( $optionMetaData != null ) {
+            foreach ( $optionMetaData as $aOptionKey => $aOptionMeta ) {
+                if ( isset( $_POST[ $aOptionKey ] ) ) {
+                    $this->updateOption( $aOptionKey, $_POST[$aOptionKey] );
                 }
             }
         }
 
         // HTML for the page
-        $settingsGroup = get_class($this) . '-settings-group';
+        $settingsGroup = get_class( $this) . '-settings-group';
         ?>
         <div class="wrap">
-            <h2><?php echo $this->getPluginDisplayName(); echo ' '; _e('Settings', 'basic-member'); ?></h2>
-            <?php if( isset($_POST['action']) && $_POST['action'] == 'update' ) { ?>
+            <h2><?php echo $this->getPluginDisplayName(); echo ' '; _e( 'Settings', 'basic-member' ); ?></h2>
+            <?php if( isset( $_POST['action']) && $_POST['action'] == 'update' ) { ?>
                 <div id="message" class="updated">
-                <p><strong><?php _e('Settings saved.') ?></strong></p>
+                <p><strong><?php _e( 'Settings saved.' ); ?></strong></p>
                 </div>
             <?php } ?>
             <form method="post" action="">
-            <?php settings_fields($settingsGroup); ?>
+            <?php settings_fields( $settingsGroup ); ?>
                 <?php
-                if ($optionMetaData != null) {
-                    foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-                        $displayText = is_array($aOptionMeta) ? $aOptionMeta[0] : $aOptionMeta;
-                        if (is_array($aOptionMeta)) {
-                            echo '<p><label for="' . $aOptionKey . '">' . $displayText . '</label></p>';
-                            $this->createFormControl($aOptionKey, $aOptionMeta, $this->getOption($aOptionKey));
+                if ( $optionMetaData != null ) {
+                    foreach ( $optionMetaData as $aOptionKey => $aOptionMeta ) {
+                        $displayText = is_array( $aOptionMeta ) ? $aOptionMeta[0] : $aOptionMeta;
+                        if ( is_array( $aOptionMeta ) ) {
+                            echo '<p><label for="' . esc_attr( $aOptionKey ) . '">' . $displayText . '</label></p>';
+                            $this->createFormControl( $aOptionKey, $aOptionMeta, $this->getOption( $aOptionKey ) );
                         } else {
                             // TIP: To create a heading, just wrap your display text in <Hx></Hx> tags.
-                            if ( substr( $displayText, 0, 1 ) == '<' && substr( $displayText, -1 ) == '>') {
+                            if ( substr( $displayText, 0, 1 ) == '<' && substr( $displayText, -1 ) == '>' ) {
                                 echo $displayText;
                             } else {
                                 echo '<p>' . $displayText . '</p>';
@@ -306,7 +322,7 @@ class BasicMember_OptionsManager {
                 ?>
                 <p class="submit">
                     <input type="submit" class="button-primary"
-                           value="<?php _e('Save Changes', 'basic-member') ?>"/>
+                           value="<?php _e( 'Save Changes', 'basic-member' ) ?>"/>
                 </p>
             </form>
         </div>
@@ -321,16 +337,16 @@ class BasicMember_OptionsManager {
      * @param  $savedOptionValue string current value for $aOptionKey
      * @return void
      */
-    protected function createFormControl($aOptionKey, $aOptionMeta, $savedOptionValue) {
-        if (is_array($aOptionMeta) && count($aOptionMeta) >= 2) { // Drop-down list
-            $choices = array_slice($aOptionMeta, 1);
+    protected function createFormControl( $aOptionKey, $aOptionMeta, $savedOptionValue) {
+        if ( is_array( $aOptionMeta ) && count( $aOptionMeta ) >= 2 ) { // Drop-down list
+            $choices = array_slice( $aOptionMeta, 1 );
             ?>
-            <p><select name="<?php echo $aOptionKey ?>" id="<?php echo $aOptionKey ?>">
+            <p><select name="<?php echo esc_attr( $aOptionKey ); ?>" id="<?php echo esc_attr( $aOptionKey ); ?>">
             <?php
-                foreach ($choices as $aChoice) {
-                    $selected = ($aChoice == $savedOptionValue) ? 'selected' : '';
+                foreach ( $choices as $aChoice ) {
+                    $selected = ( $aChoice == $savedOptionValue ) ? 'selected' : '';
                 ?>
-                    <option value="<?php echo $aChoice ?>" <?php echo $selected ?>><?php echo $this->getOptionValueI18nString($aChoice) ?></option>
+                    <option value="<?php echo esc_attr( $aChoice ); ?>" <?php echo $selected; ?>><?php echo $this->getOptionValueI18nString( $aChoice ); ?></option>
                 <?php
             }
             ?>
@@ -339,8 +355,8 @@ class BasicMember_OptionsManager {
 
         } else { // Simple input field
             ?>
-            <p><input type="text" name="<?php echo $aOptionKey ?>" id="<?php echo $aOptionKey ?>"
-                      value="<?php echo esc_attr($savedOptionValue) ?>" size="50"/></p>
+            <p><input type="text" name="<?php echo esc_attr( $aOptionKey ); ?>" id="<?php echo esc_attr( $aOptionKey ); ?>"
+                      value="<?php echo esc_attr( $savedOptionValue ); ?>" size="50"/></p>
             <?php
 
         }
@@ -355,30 +371,41 @@ class BasicMember_OptionsManager {
      * for 'true' and 'false' while still keeping the value of that option that is actually saved in
      * the DB as 'true' or 'false'.
      * To do this, follow the convention of defining option values in getOptionMetaData() as canonical names
-     * (what you want them to literally be, like 'true') and then add each one to the switch statement in this
+     * (what you want them to literally be, like 'true' ) and then add each one to the switch statement in this
      * function, returning the "__()" i18n name of that string.
      * @param  $optionValue string
-     * @return string __($optionValue) if it is listed in this method, otherwise just returns $optionValue
+     * @return string __( $optionValue) if it is listed in this method, otherwise just returns $optionValue
      */
-    protected function getOptionValueI18nString($optionValue) {
-        switch ($optionValue) {
+    protected function getOptionValueI18nString( $optionValue) {
+        switch ( $optionValue) {
             case 'true':
-                return __('true', 'basic-member');
+                $optionValue = __( 'true', 'basic-member' );
+                break;
             case 'false':
-                return __('false', 'basic-member');
+                $optionValue = __( 'false', 'basic-member' );
+                break;
 
             case 'Administrator':
-                return __('Administrator', 'basic-member');
+                $optionValue = __( 'Administrator', 'basic-member' );
+                break;
             case 'Editor':
-                return __('Editor', 'basic-member');
+                $optionValue = __( 'Editor', 'basic-member' );
+                break;
             case 'Author':
-                return __('Author', 'basic-member');
+                $optionValue = __( 'Author', 'basic-member' );
+                break;
             case 'Contributor':
-                return __('Contributor', 'basic-member');
+                $optionValue = __( 'Contributor', 'basic-member' );
+                break;
             case 'Subscriber':
-                return __('Subscriber', 'basic-member');
+                $optionValue = __( 'Subscriber', 'basic-member' );
+                break;
+            case 'Subscriber+':
+                $optionValue = __( 'Subscriber', 'basic-member' ) . '+';
+                break;
             case 'Anyone':
-                return __('Anyone', 'basic-member');
+                $optionValue = __( 'Anyone', 'basic-member' );
+                break;
         }
         return $optionValue;
     }
@@ -389,8 +416,8 @@ class BasicMember_OptionsManager {
      */
     protected function getMySqlVersion() {
         global $wpdb;
-        $rows = $wpdb->get_results('select version() as mysqlversion');
-        if (!empty($rows)) {
+        $rows = $wpdb->get_results( 'select version() as mysqlversion' );
+        if (!empty( $rows) ) {
              return $rows[0]->mysqlversion;
         }
         return false;
@@ -406,9 +433,9 @@ class BasicMember_OptionsManager {
      */
     public function getEmailDomain() {
         // Get the site domain and get rid of www.
-        $sitename = strtolower($_SERVER['SERVER_NAME']);
-        if (substr($sitename, 0, 4) == 'www.') {
-            $sitename = substr($sitename, 4);
+        $sitename = strtolower( $_SERVER['SERVER_NAME'] );
+        if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+            $sitename = substr( $sitename, 4 );
         }
         return $sitename;
     }

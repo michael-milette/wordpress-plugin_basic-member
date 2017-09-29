@@ -17,9 +17,9 @@
 */
 
 
-function BasicMember_init($file) {
+function BasicMember_init( $file) {
 
-    require_once('BasicMember_Plugin.php');
+    require_once( 'BasicMember_Plugin.php' );
     $aPlugin = new BasicMember_Plugin();
 
     // Install the plugin
@@ -28,10 +28,9 @@ function BasicMember_init($file) {
     // but it does not call any of its code.
     // So here, the plugin tracks whether or not it has run its install operation, and we ensure it is run only once
     // on the first activation
-    if (!$aPlugin->isInstalled()) {
+    if ( !$aPlugin->isInstalled() ) {
         $aPlugin->install();
-    }
-    else {
+    } else {
         // Perform any version-upgrade activities prior to activation (e.g. database changes)
         $aPlugin->upgrade();
     }
@@ -43,9 +42,9 @@ function BasicMember_init($file) {
         $file = __FILE__;
     }
     // Register the Plugin Activation Hook
-    register_activation_hook($file, array(&$aPlugin, 'activate'));
+    register_activation_hook( $file, array( &$aPlugin, 'activate' ) );
 
 
     // Register the Plugin Deactivation Hook
-    register_deactivation_hook($file, array(&$aPlugin, 'deactivate'));
+    register_deactivation_hook( $file, array( &$aPlugin, 'deactivate' ) );
 }

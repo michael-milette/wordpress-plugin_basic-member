@@ -16,7 +16,7 @@
     along with Basic Member. If not, see http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-include_once('BasicMember_LifeCycle.php');
+include_once( 'BasicMember_LifeCycle.php' );
 
 class BasicMember_Plugin extends BasicMember_LifeCycle {
 
@@ -28,35 +28,36 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         //  http://plugin.michael-simpson.com/?page_id=31
 
         // Create an array containing all categories.
-        $args = array("hide_empty" => 0,
-                    "type"      => "post",      
-                    "orderby"   => "name",
-                    "order"     => "ASC" );
-        $cats = get_categories($args);
+        $args = array( 'hide_empty' => 0,
+            'type'      => 'post',
+            'orderby'   => 'name',
+            'order'     => 'ASC',
+            );
+        $cats = get_categories( $args );
         $categories[] =  '';
         foreach($cats as $category) {
             $categories[] = $category->cat_name;
         }
-        
+
         // Create an array containing URLs of all pages.
-        $pags = get_pages(); 
+        $pags = get_pages();
         $pages[] =  '';
         foreach ( $pags as $page ) {
             $pages[] = get_page_link( $page->ID );
         }
-        
+
         return array(
-            //'_version' => array('Installed Version'), // Leave this one commented-out. Uncomment to test upgrades.
-            'GeneralSettings' => '<h3>' . __('Access Control', 'basic-member') . '</h3>',
-            'IfLoggedOut' => array(__( 'When NOT logged in and trying to access restricted content, display:', 'basic-member' ), 'Login page', 'Info page', 'Access denied message' ),
-            'IfLoggedIn' => array(__( 'When logged in but with insufficient access, display:', 'basic-member' ), 'Info page', 'Access denied message' ),
-            'AccessDeniedMessage' => array(__( 'Access denied message:', 'basic-member' ) ),
-            'InfoPageURL' => array_merge( array(__( 'Info page URL.', 'basic-member' ) ), $pages ),
-            'SubscriberHeading' => '<h3>' . __('Page and post category for Subscriber role', 'basic-member') . '</h3>',
-            'SubscriberCategory' => array_merge( array(__( 'Category to associate with the Subscriber role (blank to disable):', 'basic-member' ) ), $categories ),
-            'Info' => __('Note: Content in this category will also be accessible to user with Subscriber+ role.', 'basic-member'),
+            //'_version' => array( 'Installed Version' ), // Leave this one commented-out. Uncomment to test upgrades.
+            'GeneralSettings' => '<h3>' . __( 'Access Control', 'basic-member' ) . '</h3>',
+            'IfLoggedOut' => array( __( 'When NOT logged in and trying to access restricted content, display:', 'basic-member' ), 'Login page', 'Info page', 'Access denied message' ),
+            'IfLoggedIn' => array( __( 'When logged in but with insufficient access, display:', 'basic-member' ), 'Info page', 'Access denied message' ),
+            'AccessDeniedMessage' => array( __( 'Access denied message:', 'basic-member' ) ),
+            'InfoPageURL' => array_merge( array( __( 'Info page URL.', 'basic-member' ) ), $pages ),
+            'SubscriberHeading' => '<h3>' . __( 'Page and post category for Subscriber role', 'basic-member' ) . '</h3>',
+            'SubscriberCategory' => array_merge( array( __( 'Category to associate with the Subscriber role (blank to disable):', 'basic-member' ) ), $categories ),
+            'Info' => __( 'Note: Content in this category will also be accessible to user with Subscriber+ role.', 'basic-member' ),
             'SubscriberPlusHeading' => '<h3>' . __( 'Page and post category for Subscriber+ role', 'basic-member' ) . '</h3>',
-            'SubscriberPlusCategory' => array_merge( array(__( 'Category to associate with the Subscriber+ role (blank to disable):', 'basic-member') ), $categories ),
+            'SubscriberPlusCategory' => array_merge( array( __( 'Category to associate with the Subscriber+ role (blank to disable):', 'basic-member' ) ), $categories ),
         );
     }
 
@@ -67,10 +68,10 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
 
     protected function initOptions() {
         $options = $this->getOptionMetaData();
-        if (!empty($options)) {
-            foreach ($options as $key => $arr) {
-                if (is_array($arr) && count($arr > 1)) {
-                    $this->addOption($key, $arr[1]);
+        if ( !empty( $options ) ) {
+            foreach ( $options as $key => $arr ) {
+                if ( is_array($arr) && count( $arr > 1 ) ) {
+                    $this->addOption( $key, $arr[1] );
                 }
             }
         }
@@ -98,25 +99,16 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
      * @return void
      */
     public function disable_admin_ui() {
-        // Add categories to pages - WordPress 3.0+ only.
-        if ( function_exists( 'register_taxonomy_for_object_type' ) ) {
-            register_taxonomy_for_object_type( 'category', 'page' );
-        }
+        // Add categories to pages.
+        register_taxonomy_for_object_type( 'category', 'page' );
 
         // If user is a subscriber.
         if ( current_user_can( 'subscriber' ) || current_user_can( 'subscriber+' ) ) {
-            // Disable the admin bar for subscribers - WordPress 3.1+ only.
-            if (function_exists('show_admin_bar')) {
-                show_admin_bar( false );
-            }
+            // Disable the admin bar for subscribers
+            show_admin_bar( false );
             if ( is_admin() ) { // If on the Dashboard page.
                 // Redirect to home if trying to access the dashboard.
-                if (function_exists('home_url')) {
-                    $homeURL = home_url();
-                } else {
-                    $homeURL = site_url('/');
-                }
-                wp_redirect( $homeURL );
+                wp_redirect( home_url() );
             }
         }
     }
@@ -128,66 +120,67 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
      */
     public function restrict_content() {
         $optionsManager = new BasicMember_Plugin();
+
         // User with no role assigned.
         $subscriber = $this->getOption( 'SubscriberCategory', 'subscriber' );
+
         // User with a role of subscriberplus.
         $subscriberplus = $this->getOption( 'SubscriberPlusCategory', 'subscriber-2' );
 
-        if(has_category( [ $subscriber, $subscriberplus ] ) ) {
-            $subscribePageURL = $this->getOption( 'SubscribePageURL', site_url('/prim') );
+        if( has_category( [$subscriber, $subscriberplus] ) ) {
+            $subscribePageURL = $this->getOption( 'SubscribePageURL', '' );
+            $action = 'Display page';
+
             if( is_user_logged_in() ) {
                 global $current_user;
+
                 // If page is in subscriber category and user has no role, redirect to premium page.
-                if ( has_category( [ $subscriber ] ) && empty($current_user->roles) ||
-                    // OR if page is in subscriberplus category and user has no role or subscriber role, redirect to premium page.
-                    has_category( [ $subscriberplus ] ) && ( empty($current_user->roles) || current_user_can( 'subscriber' ) ) ) {
+                // OR if page is in subscriberplus category and user has no role or subscriber role, redirect to premium page.
+                if ( has_category( [$subscriber] ) && empty( $current_user->roles ) ||
+                    ( has_category( [$subscriberplus] ) && ( empty( $current_user->roles ) || current_user_can( 'subscriber' ) ) ) ) {
                     $action = $this->getOption( 'IfLoggedIn', 'Display message' );
-                    switch( $action ) {
-                        case 'Info Page':
-                            wp_redirect( $this->getOption( 'SubscribePageURL', site_url('/prim') ) );
-                            break;
-                        case 'Display message':
-                            $message = $this->getOption( 'AccessDeniedMessage', __( 'Access to this page is restricted.','error' ));
-                            die($message);
-                    }
                 }
-                // Otherwise display page.
             } else {  // User is logged out.
                 $action = $this->getOption( 'IfLoggedOut', 'Login' );
-                switch( $action ) {
-                    case 'Login':
-                        // Not logged in : Will be redirected to login page when trying to access pages and posts in subscriber or contributor categories.
-                        wp_redirect( wp_login_url( get_permalink() ) );
+            }
+
+            switch( $action ) {
+                case 'Display page':
+                    break; // Nothing special to do here.
+                case 'Login':
+                    // Not logged in : Will be redirected to login page when trying to access pages and posts in subscriber or contributor categories.
+                    wp_redirect( wp_login_url( get_permalink() ) );
+                    break;
+                case 'Info Page':
+                    if ( !empty( $redirectURL ) ) {
+                        wp_redirect( $redirectURL );
                         break;
-                    case 'Info Page':
-                        wp_redirect( $subscribePageURL );
-                        break;
-                    case 'Display message':
-                        $message = $this->getOption( 'AccessDeniedMessage', __( 'Access to this page is restricted.','error' ));
-                        die($message);
-                }
+                    } // else Display message.
+                case 'Display message':
+                    $message = $this->getOption( 'AccessDeniedMessage', __( 'Access to this page is restricted.','error' ) );
+                    die( $message );
             }
         }
     }
-    
+
     /*
      * Build list of subscriber and subscriberplus catgory ids.
      *
-     * @param neg boolean (optional) true makes ID's negative, false makes them positive.
+     * @param sign string (optional) set to '-' to make returned ID's negative numbers. Leave blank for positive.
      * @return string containing commas delimited list of category IDs.
      */
-    private function restrictedCategoryList($neg = false) {
+    private function restrictedCategoryList( $sign = '' ) {
         global $current_user;
         $subscriberIDs = '';
-        
+
         // Add categories if authenticated user has a role that which is not subscriber+.
-        if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber+' ) ) {
+        if ( !is_user_logged_in() || empty( $current_user->roles ) || current_user_can( 'subscriber+' ) ) {
             $subscriberIDs = $this->getOption( 'SubscriberCategory', 'subscriber' );
             if ( !empty( $subscriberIDs ) ) {
-                $subscriberIDs = ( $neg ? '-' : '' ).strval( get_cat_ID( $subscriberIDs ) );
+                $subscriberIDs = ( $sign . strval( get_cat_ID( $subscriberIDs );
             }
         }
-        
+
         // Add categories if authenticated user has a role that which is not subscriber.
         if (!is_user_logged_in() || empty($current_user->roles) || current_user_can( 'subscriber' ) ) {
             $subscriberPlusID = $this->getOption( 'SubscriberPlusCategory', 'subscriber-2' );
@@ -195,13 +188,13 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
                 if ( is_numeric( $subscriberIDs ) ) {
                     $subscriberIDs .= ',';
                 }
-                $subscriberIDs .= ( $neg ? '-' : '' ).strval( get_cat_ID( $subscriberPlusID ) );
+                $subscriberIDs .= $sign .strval( get_cat_ID( $subscriberPlusID );
             }
         }
         return $subscriberIDs;
     }
 
-    /* 
+    /*
      * Exclude Category Posts from Home Page
      *
      * @param object query.
@@ -209,23 +202,23 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
      */
     public function exclude_post_category( $query ) {
         if ( $query->is_home() ) { // && $query->is_main_query() ) {
-            $subscriberIDs = $this->restrictedCategoryList(true);
+            $subscriberIDs = $this->restrictedCategoryList( '-' );
 
             // Filter out membership category numbers.
-            if (!empty($subscriberIDs)) {
+            if ( !empty( $subscriberIDs ) ) {
                 $query->set( 'cat', $subscriberIDs );
             }
         }
         return $query;
     }
-    
-    /* 
+
+    /*
      * Hide categories from WordPress category widget
      *
      * @param array
      * @return array
      */
-    public function exclude_widget_categories($args){
+    public function exclude_widget_categories( $args ){
         $args["exclude"] = $this->restrictedCategoryList();
         return $args;
     }
@@ -234,18 +227,21 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
 
         // Add options administration page
         // http://plugin.michael-simpson.com/?page_id=47
-        add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
+        add_action( 'admin_menu', array( &$this, 'addSettingsSubMenuPage' ) );
 
         // Add Actions & Filters
         // http://plugin.michael-simpson.com/?page_id=37
 
         // Disable Admin UI.
-        add_action('init', array( &$this, 'disable_admin_ui') );
+        add_action( 'init', array( &$this, 'disable_admin_ui' ) );
+
         // Restrict content.
-        add_action('template_redirect', array( &$this, 'restrict_content') );
-        if ($this->getOption( 'IfLoggedOut', 'Login' ) == 'Access denied message') {
+        add_action( 'template_redirect', array( &$this, 'restrict_content' ) );
+
+        if ($this->getOption( 'IfLoggedOut', 'Login' ) == 'Access denied message' ) {
             // Hide restricted categories in blogroll.
             add_action( 'pre_get_posts', array( &$this, 'exclude_post_category' ) );
+
             // Hide restricted categories in category list.
             add_filter( 'widget_categories_args', array( &$this, 'exclude_widget_categories' ) );
         }

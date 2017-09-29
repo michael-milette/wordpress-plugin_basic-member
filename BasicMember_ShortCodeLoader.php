@@ -25,8 +25,8 @@ abstract class BasicMember_ShortCodeLoader {
      * for the same shortcode
      * @return void
      */
-    public function register($shortcodeName) {
-        $this->registerShortcodeToFunction($shortcodeName, 'handleShortcode');
+    public function register( $shortcodeName ) {
+        $this->registerShortcodeToFunction( $shortcodeName, 'handleShortcode' );
     }
 
     /**
@@ -38,14 +38,14 @@ abstract class BasicMember_ShortCodeLoader {
      * shortcode handler
      * @return void
      */
-    protected function registerShortcodeToFunction($shortcodeName, $functionName) {
-        if (is_array($shortcodeName)) {
-            foreach ($shortcodeName as $aName) {
-                add_shortcode($aName, array($this, $functionName));
+    protected function registerShortcodeToFunction( $shortcodeName, $functionName ) {
+        if ( is_array( $shortcodeName ) ) {
+            foreach ( $shortcodeName as $aName ) {
+                add_shortcode( $aName, array( $this, $functionName ) );
             }
         }
         else {
-            add_shortcode($shortcodeName, array($this, $functionName));
+            add_shortcode( $shortcodeName, array( $this, $functionName ) );
         }
     }
 
@@ -54,6 +54,6 @@ abstract class BasicMember_ShortCodeLoader {
      * @param  $atts shortcode inputs
      * @return string shortcode content
      */
-    public abstract function handleShortcode($atts);
+    public abstract function handleShortcode( $atts );
 
 }

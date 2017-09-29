@@ -16,7 +16,7 @@
     along with Basic Member. If not, see http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-include_once('BasicMember_OptionsManager.php');
+include_once( 'BasicMember_OptionsManager.php' );
 
 class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
 
@@ -27,7 +27,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @return bool indicating if the plugin is installed already
      */
     public function isInstalled() {
-        return $this->getOption(self::optionInstalled) == true;
+        return $this->getOption( self::optionInstalled ) == true;
     }
 
     /**
@@ -35,7 +35,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @return null
      */
     protected function markAsInstalled() {
-        return $this->updateOption(self::optionInstalled, true);
+        return $this->updateOption( self::optionInstalled, true );
     }
 
     /**
@@ -45,7 +45,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * false implies it was not.
      */
     protected function markAsUnInstalled() {
-        return $this->deleteOption(self::optionInstalled);
+        return $this->deleteOption( self::optionInstalled );
     }
 
     /**
@@ -55,7 +55,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @return null
      */
     protected function getVersionSaved() {
-        return $this->getOption(self::optionVersion);
+        return $this->getOption( self::optionVersion );
     }
 
     /**
@@ -65,8 +65,8 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * compared using version_compare (http://php.net/manual/en/function.version-compare.php)
      * @return null
      */
-    protected function setVersionSaved($version) {
-        return $this->updateOption(self::optionVersion, $version);
+    protected function setVersionSaved( $version ) {
+        return $this->updateOption( self::optionVersion, $version );
     }
 
     /**
@@ -74,7 +74,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * "Plugin Name", "Version", "Description", "Text Domain", etc.
      */
     protected function getMainPluginFileName() {
-        return basename(dirname(__FILE__)) . 'php';
+        return basename( dirname(__FILE__) ) . 'php';
     }
 
     /**
@@ -83,12 +83,12 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @param $key string plugin header key
      * @return string if found, otherwise null
      */
-    public function getPluginHeaderValue($key) {
+    public function getPluginHeaderValue( $key ) {
         // Read the string from the comment header of the main plugin file
-        $data = file_get_contents($this->getPluginDir() . DIRECTORY_SEPARATOR . $this->getMainPluginFileName());
+        $data = file_get_contents( $this->getPluginDir() . DIRECTORY_SEPARATOR . $this->getMainPluginFileName() );
         $match = array();
-        preg_match('/' . $key . ':\s*(\S+)/', $data, $match);
-        if (count($match) >= 1) {
+        preg_match( '/' . $key . ':\s*(\S+)/', $data, $match);
+        if ( count( $match) >= 1 ) {
             return $match[1];
         }
         return null;
@@ -112,7 +112,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @return string
      */
     public function getVersion() {
-        return $this->getPluginHeaderValue('Version');
+        return $this->getPluginHeaderValue( 'Version' );
     }
 
 
@@ -125,7 +125,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * should be taken. Assumes that version string comparable by version_compare, examples: '1', '1.1', '1.1.1', '2.0', etc.
      */
     public function isInstalledCodeAnUpgrade() {
-        return $this->isSavedVersionLessThan($this->getVersion());
+        return $this->isSavedVersionLessThan( $this->getVersion() );
     }
 
     /**
@@ -133,21 +133,21 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @param  $aVersion string
      * @return bool true if the saved version is earlier (by natural order) than the input version
      */
-    public function isSavedVersionLessThan($aVersion) {
-        return $this->isVersionLessThan($this->getVersionSaved(), $aVersion);
+    public function isSavedVersionLessThan( $aVersion ) {
+        return $this->isVersionLessThan( $this->getVersionSaved(), $aVersion );
     }
 
     /**
      * Used to see if the installed code is the same or earlier than the input version.
      * Useful when checking for an upgrade. If you haven't specified the number of the newer version yet,
      * but the last version (installed) was 2.3 (for example) you could check if
-     * For example, $this->isSavedVersionLessThanEqual('2.3') == true indicates that the saved version is not upgraded
+     * For example, $this->isSavedVersionLessThanEqual( '2.3' ) == true indicates that the saved version is not upgraded
      * past 2.3 yet and therefore you would perform some appropriate upgrade action.
      * @param  $aVersion string
      * @return bool true if the saved version is earlier (by natural order) than the input version
      */
-    public function isSavedVersionLessThanEqual($aVersion) {
-        return $this->isVersionLessThanEqual($this->getVersionSaved(), $aVersion);
+    public function isSavedVersionLessThanEqual( $aVersion ) {
+        return $this->isVersionLessThanEqual( $this->getVersionSaved(), $aVersion );
     }
 
     /**
@@ -155,8 +155,8 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @param  $version2 string a version string such as '1', '1.1', '1.1.1', '2.0', etc.
      * @return bool true if version_compare of $versions1 and $version2 shows $version1 as the same or earlier
      */
-    public function isVersionLessThanEqual($version1, $version2) {
-        return (version_compare($version1, $version2) <= 0);
+    public function isVersionLessThanEqual( $version1, $version2 ) {
+        return ( version_compare( $version1, $version2 ) <= 0 );
     }
 
     /**
@@ -164,8 +164,8 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @param  $version2 string a version string such as '1', '1.1', '1.1.1', '2.0', etc.
      * @return bool true if version_compare of $versions1 and $version2 shows $version1 as earlier
      */
-    public function isVersionLessThan($version1, $version2) {
-        return (version_compare($version1, $version2) < 0);
+    public function isVersionLessThan( $version1, $version2 ) {
+        return ( version_compare( $version1, $version2) < 0 );
     }
 
     /**
@@ -175,7 +175,7 @@ class BasicMember_InstallIndicator extends BasicMember_OptionsManager {
      * @return void
      */
     protected function saveInstalledVersion() {
-        $this->setVersionSaved($this->getVersion());
+        $this->setVersionSaved( $this->getVersion() );
     }
 
 

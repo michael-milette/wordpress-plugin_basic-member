@@ -16,7 +16,7 @@
     along with Basic Member. If not, see http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-include_once('BasicMember_InstallIndicator.php');
+include_once( 'BasicMember_InstallIndicator.php' );
 
 class BasicMember_LifeCycle extends BasicMember_InstallIndicator {
 
@@ -69,13 +69,13 @@ class BasicMember_LifeCycle extends BasicMember_InstallIndicator {
     public function deactivate() {
         // Only remove subscriber+ role if there are no users with this role.
         $subscriberplus = 99;
-        if (function_exists('get_users')) { // WordPress 3.1+
+        if ( function_exists( 'get_users' ) ) { // WordPress 3.1+
             $subscriberplus = count( get_users( array( 'role' => 'subscriber+' ) ) );
-        } else if (function_exists('count_users')) { // WordPress 3.0 - A little slower.
+        } elseif ( function_exists( 'count_users' ) ) { // WordPress 3.0 - A little slower.
             $subscriberplus = count_users();
             $subscriberplus = $subscriberplus['avail_roles']['subscriber+'];
         }
-        if ($subscriberplus == 0) {
+        if ( $subscriberplus == 0 ) {
             remove_role( 'subscriber+' );
         }
     }
@@ -141,8 +141,8 @@ class BasicMember_LifeCycle extends BasicMember_InstallIndicator {
 
 
     protected function requireExtraPluginFiles() {
-        require_once(ABSPATH . 'wp-includes/pluggable.php');
-        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        require_once( ABSPATH . 'wp-includes/pluggable.php' );
+        require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
     }
 
     /**
@@ -150,29 +150,29 @@ class BasicMember_LifeCycle extends BasicMember_InstallIndicator {
      * (i.e. the page for setting options)
      */
     protected function getSettingsSlug() {
-        return get_class($this) . 'Settings';
+        return get_class( $this ) . 'Settings';
     }
 
     protected function addSettingsSubMenuPageToPluginsMenu() {
         $this->requireExtraPluginFiles();
         $displayName = $this->getPluginDisplayName();
-        add_submenu_page('plugins.php',
-                         $displayName,
-                         $displayName,
-                         'manage_options',
-                         $this->getSettingsSlug(),
-                         array(&$this, 'settingsPage'));
+        add_submenu_page( 'plugins.php',
+            $displayName,
+            $displayName,
+            'manage_options',
+            $this->getSettingsSlug(),
+            array( &$this, 'settingsPage' ) );
     }
 
 
     protected function addSettingsSubMenuPageToSettingsMenu() {
         $this->requireExtraPluginFiles();
         $displayName = $this->getPluginDisplayName();
-        add_options_page($displayName,
-                         $displayName,
-                         'manage_options',
-                         $this->getSettingsSlug(),
-                         array(&$this, 'settingsPage'));
+        add_options_page( $displayName,
+            $displayName,
+            'manage_options',
+            $this->getSettingsSlug(),
+            array( &$this, 'settingsPage' ) );
     }
 
     /**
@@ -182,9 +182,9 @@ class BasicMember_LifeCycle extends BasicMember_InstallIndicator {
      * The plugin prefix is lower-cases as a best practice that all DB table names are lower case to
      * avoid issues on some platforms
      */
-    protected function prefixTableName($name) {
+    protected function prefixTableName( $name ) {
         global $wpdb;
-        return $wpdb->prefix .  strtolower($this->prefix($name));
+        return $wpdb->prefix .  strtolower( $this->prefix( $name ) );
     }
 
 
@@ -192,20 +192,20 @@ class BasicMember_LifeCycle extends BasicMember_InstallIndicator {
      * Convenience function for creating AJAX URLs.
      *
      * @param $actionName string the name of the ajax action registered in a call like
-     * add_action('wp_ajax_actionName', array(&$this, 'functionName'));
+     * add_action( 'wp_ajax_actionName', array(&$this, 'functionName' ) );
      *     and/or
-     * add_action('wp_ajax_nopriv_actionName', array(&$this, 'functionName'));
+     * add_action( 'wp_ajax_nopriv_actionName', array(&$this, 'functionName' ) );
      *
      * If have an additional parameters to add to the Ajax call, e.g. an "id" parameter,
      * you could call this function and append to the returned string like:
-     *    $url = $this->getAjaxUrl('myaction&id=') . urlencode($id);
+     *    $url = $this->getAjaxUrl( 'myaction&id=' ) . urlencode( $id);
      * or more complex:
-     *    $url = sprintf($this->getAjaxUrl('myaction&id=%s&var2=%s&var3=%s'), urlencode($id), urlencode($var2), urlencode($var3));
+     *    $url = sprintf( $this->getAjaxUrl( 'myaction&id=%s&var2=%s&var3=%s' ), urlencode( $id), urlencode( $var2), urlencode( $var3) );
      *
      * @return string URL that can be used in a web page to make an Ajax call to $this->functionName
      */
-    public function getAjaxUrl($actionName) {
-        return admin_url('admin-ajax.php') . '?action=' . $actionName;
+    public function getAjaxUrl( $actionName ) {
+        return admin_url( 'admin-ajax.php' ) . '?action=' . $actionName;
     }
 
 }
