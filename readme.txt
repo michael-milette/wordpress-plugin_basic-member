@@ -14,23 +14,15 @@ Disable admin bar and dashboard and restricts 'subscriber' category posts to sub
 
 This is a very easy to use basic membership plugin. 
 
-In addition to automatically disabling the admin bar and dashboard, this plugin offers 3 levels of access for your content.
+In addition to automatically disabling the admin bar and dashboard for subscribers, this plugin offers 3 levels of access for your content.
 
-Level 0: Unrestricted public access.
+* Level 0: Unrestricted public access - all content that is not included in one of the special categories.
+* Level 1: Subscriber restricted access. Just specify the category to be associated with the subscriber role to enable access to pages and posts in that category.
+* Level 2: Subscriber+ restricted access. Just specify the category to be associated with the subscriber role to enable access to pages and posts in that category. Note that users with this role will also be able to access content in the associated subscriber category.
 
-Simply DO NOT APPLY either of the restricted or premium categories to your pages and posts and they will remain public, as if you had not even installed the plugin.
+When trying to access restricted content, you will control whether they are sent to the login page (only if logged out), an information page of your choice or see an access denied type message.
 
-Level 1: Restricted Access.
-
-Just add the chosen restricted category to your page or post to restrict their access.
-
-Level 2: Premium Access.
-
-Similar to Restricted Access, those with a premium role (any role above the basic role of level 1) will get access to content in the selected premium access category as well as the selected restricted access category.
-
-You will also need to create a page with a slug called /prim. This is the page that will tell logged-in users what they need to do in order to access the restricted content. If the user is not logged-in, they will be redirected to the login page.
-
-To grant users access to restricted or premium content, simply give them a role of Subscriber, Subscriber+ or the role you selected in the settings page.
+To grant users access to restricted or premium content, simply give them a role of Subscriber, Subscriber+ to your registered users.
 
 == Installation ==
 
@@ -39,7 +31,7 @@ http://www.wpbeginner.com/beginners-guide/step-by-step-guide-to-install-a-wordpr
 
 The installation process will create a new role called Subscriber+. This will be a clone of the Subscriber role at the time of installation. If you make any changes to the Subscriber role, you will also need to make the same changes to the Subscriber+ role.
 
-Once the plugin is installed, go to the Plugin > Basic Member settings page and choose which page/post categories will be associated with the Restricted and and/or Premium access roles.
+Once the plugin is installed, go to the Plugin > Basic Member settings page and choose which page/post categories will be associated with the Subscriber and Subscriber+ roles.
 
 == Installation ==
 
@@ -53,17 +45,17 @@ Question: Why do I only see a category called "Uncategorized"?
 Answer: You must create categories for your restricted and premium restricted content first and then return to the settings page to select the right category.
 Tip: You can set the default category in WordPress by going to Dashboard > Settings > Writing.
 
-Question: I am an Admnistrator, Author, Editor or Contributor. Why can I see all of the content?
-Answer: This is by design. Restricted content only applies to subscriber and subscriber+ roles.
+Question: I am an Admnistrator, Author, Editor or Contributor. Why can I see all of the restricted (subscriber and subscriber+) content?
+Answer: This is by design. Restricted content only applies to users with subscriber and subscriber+ roles.
 
 Question: Where do I assign a Subscriber+ role?
-Answer: You need to edit user profiles.
+Answer: In the user's profiles.
 
 Question: I can't see the Subscriber+ role. How do I create it?
-Answer: Just deactivate the plugin. The Subscriber+ role will be re-created when you then re-activate the plugin.
+Answer: Just deactivate the plugin. The Subscriber+ role is created when you activate the plugin.
 
-Question: My restricted pages used to be restricted. Why are they not anymore?
-Answer: This will happen if you rename your categories. Update the plugin settings to select the new category names.
+Question: My restricted pages are no longer restricted. Why what happened?
+Answer: This will happen if you rename your categories. Select the new category names in the plugin settings.
 
 Question: Where do I set the category for pages?
 Answer: This feature is only available when the plugin is enabled.

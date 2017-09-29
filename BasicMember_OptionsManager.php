@@ -279,7 +279,11 @@ class BasicMember_OptionsManager {
         ?>
         <div class="wrap">
             <h2><?php echo $this->getPluginDisplayName(); echo ' '; _e('Settings', 'basic-member'); ?></h2>
-
+            <?php if( isset($_POST['action']) && $_POST['action'] == 'update' ) { ?>
+                <div id="message" class="updated">
+                <p><strong><?php _e('Settings saved.') ?></strong></p>
+                </div>
+            <?php } ?>
             <form method="post" action="">
             <?php settings_fields($settingsGroup); ?>
                 <?php

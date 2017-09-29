@@ -47,15 +47,16 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         
         return array(
             //'_version' => array('Installed Version'), // Leave this one commented-out. Uncomment to test upgrades.
-            'GeneralSettings' => '<h3>' . __('General Settings', 'basic-member') . '</h3>',
-            'DisplayLoginOnDeny' => array(__( 'Display login page for restricted content', 'basic-member' ), 'Yes', 'No' ),
-            'AccessDeniedMessage' => array(__( 'Access denied message. Will be displayed when trying to access restricted content and <strong>Display login page for restricted content</strong> is set to <strong>No</strong>.', 'basic-member' ) ),
-            'SubscribePageURL' => array_merge( array(__( 'Subscribe page URL. This will be displayed when a logged-in user attempts to access premium content.', 'basic-member' ) ), $pages ),
-            'SubscriberHeading' => '<h3>' . __('Restricted Access for Subscriber Role', 'basic-member') . '</h3>',
+            'GeneralSettings' => '<h3>' . __('Access Control', 'basic-member') . '</h3>',
+            'IfLoggedOut' => array(__( 'When NOT logged in and trying to access restricted content, display:', 'basic-member' ), 'Login page', 'Info page', 'Access denied message' ),
+            'IfLoggedIn' => array(__( 'When logged in but with insufficient access, display:', 'basic-member' ), 'Info page', 'Access denied message' ),
+            'AccessDeniedMessage' => array(__( 'Access denied message:', 'basic-member' ) ),
+            'InfoPageURL' => array_merge( array(__( 'Info page URL.', 'basic-member' ) ), $pages ),
+            'SubscriberHeading' => '<h3>' . __('Page and post category for Subscriber role', 'basic-member') . '</h3>',
             'SubscriberCategory' => array_merge( array(__( 'Category to associate with the Subscriber role (blank to disable):', 'basic-member' ) ), $categories ),
-            'SubscriberPlusHeading' => '<h3>' . __( 'Premium Access for Subscriber+ Role', 'basic-member' ) . '</h3>',
+            'Info' => __('Note: Content in this category will also be accessible to user with Subscriber+ role.', 'basic-member'),
+            'SubscriberPlusHeading' => '<h3>' . __( 'Page and post category for Subscriber+ role', 'basic-member' ) . '</h3>',
             'SubscriberPlusCategory' => array_merge( array(__( 'Category to associate with the Subscriber+ role (blank to disable):', 'basic-member') ), $categories ),
-            'Info' => __('Note: Content in the Restricted Access category above will also be displayed to users with a Premium Access role.', 'basic-member'),
         );
     }
 
@@ -133,26 +134,38 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         $subscriberplus = $this->getOption( 'SubscriberPlusCategory', 'subscriber-2' );
 
         if(has_category( [ $subscriber, $subscriberplus ] ) ) {
-            if( !is_user_logged_in() ) {
-                if ($this->getOption( 'DisplayLoginOnDeny', 'Yes' ) == 'Yes') {
-                    // Not logged in : Will be redirected to login page when trying to access pages and posts in subscriber or contributor categories.
-                    wp_redirect( wp_login_url( get_permalink() ) );
-                } else {
-                    $message = $this->getOption( 'AccessDeniedMessage', __( 'Access to this page is restricted.','error' ));
-                    die($message);
-                }
-            } else {  // User is logged in.
-                // If page is in subscriber category and user has no role, redirect to premium page.
+            $subscribePageURL = $this->getOption( 'SubscribePageURL', site_url('/prim') );
+            if( is_user_logged_in() ) {
                 global $current_user;
-                $subscribePageURL = $this->getOption( 'SubscribePageURL', site_url('/prim') );
-                if ( has_category( [ $subscriber ] ) && empty($current_user->roles) ) {
-                    wp_redirect( $subscribePageURL );
-                }
-                // If page is in subscriberplus category and user has no role or subscriber role, redirect to premium page.
-                if ( has_category( [ $subscriberplus ] ) && ( empty($current_user->roles) || current_user_can( 'subscriber' ) ) ) {
-                    wp_redirect( $subscribePageURL );
+                // If page is in subscriber category and user has no role, redirect to premium page.
+                if ( has_category( [ $subscriber ] ) && empty($current_user->roles) ||
+                    // OR if page is in subscriberplus category and user has no role or subscriber role, redirect to premium page.
+                    has_category( [ $subscriberplus ] ) && ( empty($current_user->roles) || current_user_can( 'subscriber' ) ) ) {
+                    $action = $this->getOption( 'IfLoggedIn', 'Display message' );
+                    switch( $action ) {
+                        case 'Info Page':
+                            wp_redirect( $this->getOption( 'SubscribePageURL', site_url('/prim') ) );
+                            break;
+                        case 'Display message':
+                            $message = $this->getOption( 'AccessDeniedMessage', __( 'Access to this page is restricted.','error' ));
+                            die($message);
+                    }
                 }
                 // Otherwise display page.
+            } else {  // User is logged out.
+                $action = $this->getOption( 'IfLoggedOut', 'Login' );
+                switch( $action ) {
+                    case 'Login':
+                        // Not logged in : Will be redirected to login page when trying to access pages and posts in subscriber or contributor categories.
+                        wp_redirect( wp_login_url( get_permalink() ) );
+                        break;
+                    case 'Info Page':
+                        wp_redirect( $subscribePageURL );
+                        break;
+                    case 'Display message':
+                        $message = $this->getOption( 'AccessDeniedMessage', __( 'Access to this page is restricted.','error' ));
+                        die($message);
+                }
             }
         }
     }
@@ -230,7 +243,7 @@ class BasicMember_Plugin extends BasicMember_LifeCycle {
         add_action('init', array( &$this, 'disable_admin_ui') );
         // Restrict content.
         add_action('template_redirect', array( &$this, 'restrict_content') );
-        if ($this->getOption( 'DisplayLoginOnDeny', 'Yes' ) == 'No') {
+        if ($this->getOption( 'IfLoggedOut', 'Login' ) == 'Access denied message') {
             // Hide restricted categories in blogroll.
             add_action( 'pre_get_posts', array( &$this, 'exclude_post_category' ) );
             // Hide restricted categories in category list.
